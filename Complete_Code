@@ -22,27 +22,53 @@ def askquestion(questionno):
     cell = worksheet["E{}".format(questionno + 1)]
     w_answers = cell.value
     w_answerslist = w_answers.split(',')
+    print("---------------------------------")  
     print("For ${}: {}".format(level, question))
     for i in optionlist:
         print(i)
     valid = False
-    while valid is False:
+    while valid is False:  
         answer = input("Enter your answer:").upper().strip()
         if answer in c_answerslist:
             print("You got the correct answer. You now have ${}.".format(level))
-            valid = True
             return True
         elif answer in w_answerslist:
             print("You got the wrong answer. You won nothing.")
-            print("The correct answer was {}.".format(c_answerslist[1]))    
+            print("The correct answer was {}.".format(c_answerslist[1]))
             return False
         else:
             print("Not a valid answer.")
 
-questionno = 1
-while askquestion(questionno):
-    questionno += 1
-cell = worksheet["A{}".format(questionno + 1)]
-amountwon = cell.value
-print("You won ${}.".format(amountwon))
+def choice(amount):
+    print("---------------------------------") 
+    print("Do you want to leave with ${} or continue answering questions for more money?".format(amount))
+    valid = False
+    while valid is False:
+        choice = input("""1) Leave
+2) Continue
+Enter your choice:""")
+        choice = choice.upper().strip()
+        if choice == "1" or choice == "LEAVE":
+            print("You won ${}.".format(amount))
+            return False
+        elif choice == "2" or choice == "CONTINUE":
+            return True
+        else:
+            print("Not a valid answer.")
 
+questionno = 1
+
+    
+continuing = True
+while continuing:
+    answer = askquestion(questionno)
+    if answer is True and questionno > 5:
+        cell = worksheet["A{}".format(questionno + 1)]
+        amount = cell.value
+        continuing = choice(amount)
+        questionno += 1 
+    elif answer is True:
+        questionno += 1
+    else:
+        print("Thanks for playing.")
+        break
