@@ -1,48 +1,69 @@
+"""Noah Le Ru, Who Wants to be a Millionaire Game."""
 import openpyxl as open
 import os
 
-# Make sure excel file is in same folder.
+# Get excel sheet with Questions and Answers.
 current_directory = os.path.dirname(os.path.realpath(__file__))
 file_path = os.path.join(current_directory, "Questions.xlsx")
 workbook = open.load_workbook(file_path)
 worksheet = workbook['Sheet1']
 
+# Dictionary of points won.
 winnings_dict = {
 }
 round = 1
 
+
 def menu(winnings_dict, round):
+    """Print menu and calls chosen option."""
     print("""---------------------------------
-1. Play Game 
-2. Points 
-3. Help 
-Q. Points and Quit """ )
+1. Play Game (Round {}/5)
+2. Points
+3. Help
+Q. Points and Quit
+Try beat my score of $3,750,000.""".format(round - 1))
+    # Loop until valid answer.
     valid = False
     while valid is False:
         menuchoice = input("Enter a number:").upper().strip()
         if menuchoice == "1" or menuchoice == "PLAY":
+            # Start game on current round.
             questionno = 1
             round += 1
             askquestion(questionno, round)
             valid = True
         elif menuchoice == "2" or menuchoice == "POINTS":
-            winnings_dict = countwinnings(winnings_dict)
+            # Print points and then menu.
+            countwinnings(winnings_dict)
             menu(winnings_dict, round)
             valid = True
         elif menuchoice == "3" or menuchoice == "HELP":
-            help()
-            valid = True
+            print("---------------------------------")
+            print("""Welcome to the Who Wants to be a Millionaire game.
+How it works: There are 5 rounds, in each round you will be
+asked 12 questions in increasing difficulty. Each questions
+is for a certain amount of money from 100-1000000. If you get
+a questions wrong you leave with nothing. If you get it right
+you can go on to the next question. Starting from the 7th question
+you will be asked if you want to leave with the money of the
+questions you are at or continue. Remember if you continue and get a
+questions wrong you win nothing!""")
+            print("---------------------------------")
         elif menuchoice == "Q" or menuchoice == "QUIT":
+            # Prints points and quit game.
             countwinnings(winnings_dict)
             print("Thanks for playing.")
-            valid = True
-            return
+            quit()
         else:
+            # Loop Again
             print("Invalid Answer.")
 
 
 def askquestion(questionno, round):
+    """Ask questions in each round and check answer."""
+    # To not go over the 5 avalible rounds.
     while round < 7:
+        # Get data from excel table.
         cell = worksheet["A{}".format(questionno + 1 + ((round - 2) * 13))]
         level = cell.value
         cell = worksheet["B{}".format(questionno + 1 + ((round - 2) * 13))]
@@ -58,40 +79,53 @@ def askquestion(questionno, round):
         w_answerslist = w_answers.split(',')
         cell = worksheet["A{}".format(questionno + 1 + ((round - 2) * 13))]
         amount = cell.value
-        print("---------------------------------")  
+        # Print Data.
+        print("---------------------------------")
         print("For ${}: {}".format(level, question))
         for i in optionlist:
             print(i)
+        # Ask for answer.
         answer = input("Enter your answer:").upper().strip()
         if answer in c_answerslist:
-            print("You got the correct answer. You now have ${}.".format(level))
+            # If answer correct.
+            print("You got the correct answer. You now have ${}."
+                  .format(level))
             if amount == 1000000:
+                # Go back to menu if 1000000 can't go over 1 million.
                 print("Yay! You won a million dollars!!")
+                # Add winnings to dictionary.
                 winnings_dict[round - 1] = 1000000
                 menu(winnings_dict, round)
                 return
-            else: # ELif?
-                if questionno > 7:
-                    choice(amount, round)
-                    questionno += 1 
-                else:
-                    questionno += 1
+            elif questionno > 7:
+                # If questions 7 or higer ask for choice otherwise too much.
+                choice(amount, round)
+                questionno += 1
+            else:
+                # Otherwise go on to next question.
+                questionno += 1
         elif answer in w_answerslist:
+            # If answer wrong tell user and add 0 to winnings for this round.
             print("You got the wrong answer. You won nothing.")
             print("The correct answer was {}.".format(c_answerslist[1]))
             winnings_dict[round - 1] = 0
             menu(winnings_dict, round)
             return
         else:
+            # Loop if answer invalid.
             print("Not a valid answer.")
-            # I am calling funcction through play() instead of calling directly. I could call the function choice instaly after they get questions wrong.
-            # If questions wrong should call menu
+    # If user tries to play when no rounds left.
+    print("---------------------------------")
     print("No more rounds.")
+    menu(winnings_dict, round)
 
 
 def choice(amount, round):
-    print("---------------------------------") 
-    print("Do you want to leave with ${} or continue answering questions for more money?".format(amount))
+    """Ask user choice and add to winnings if leave."""
+    print("---------------------------------")
+    print("""Do you want to leave with ${} or continue answering questions
+for more money?""".format(amount))
+    # Loop until valid answer.
     valid = False
     while valid is False:
         choice = input("""1) Leave
@@ -99,24 +133,33 @@ def choice(amount, round):
 Enter your choice:""")
         choice = choice.upper().strip()
         if choice == "1" or choice == "LEAVE":
+            # Add to winnings and call menu again.
             print("You won ${}.".format(amount))
-            winnings_dict[round - 1] = amount 
+            winnings_dict[round - 1] = amount
             menu(winnings_dict, round)
             return
         elif choice == "2" or choice == "CONTINUE":
+            # Continue asking questions.
             return True
         else:
+            # Loop.
             print("Not a valid answer.")
 
+
 def countwinnings(winnings_dict):
+    """Count total winnings in winnings_dict."""
     print("---------------------------------")
     if winnings_dict:
+        # Get total and print points for each round.
         total = sum(winnings_dict.values())
         for i in winnings_dict:
             print("Round {}: ${}".format(i, winnings_dict[i]))
         print("Total: ${}".format(total))
     else:
+        # Check if nothing scored.
         print("No points scored yet!")
-    return winnings_dict
+    return
 
+
+# Call menu to start game.
 menu(winnings_dict, round)
