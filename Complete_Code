@@ -7,39 +7,89 @@ file_path = os.path.join(current_directory, "Questions.xlsx")
 workbook = open.load_workbook(file_path)
 worksheet = workbook['Sheet1']
 
+winnings_dict = {
+}
+round = 1
 
-def askquestion(questionno):
-    cell = worksheet["A{}".format(questionno + 1)]
-    level = cell.value
-    cell = worksheet["B{}".format(questionno + 1)]
-    question = cell.value
-    cell = worksheet["C{}".format(questionno + 1)]
-    options = cell.value
-    optionlist = options.split(',')
-    cell = worksheet["D{}".format(questionno + 1)]
-    c_answers = cell.value
-    c_answerslist = c_answers.split(',')
-    cell = worksheet["E{}".format(questionno + 1)]
-    w_answers = cell.value
-    w_answerslist = w_answers.split(',')
-    print("---------------------------------")  
-    print("For ${}: {}".format(level, question))
-    for i in optionlist:
-        print(i)
+def menu(winnings_dict, round):
+    print("""---------------------------------
+1. Play Game 
+2. Points 
+3. Help 
+Q. Points and Quit """ )
     valid = False
-    while valid is False:  
+    while valid is False:
+        menuchoice = input("Enter a number:").upper().strip()
+        if menuchoice == "1" or menuchoice == "PLAY":
+            questionno = 1
+            round += 1
+            askquestion(questionno, round)
+            valid = True
+        elif menuchoice == "2" or menuchoice == "POINTS":
+            winnings_dict = countwinnings(winnings_dict)
+            menu(winnings_dict, round)
+            valid = True
+        elif menuchoice == "3" or menuchoice == "HELP":
+            help()
+            valid = True
+        elif menuchoice == "Q" or menuchoice == "QUIT":
+            countwinnings(winnings_dict)
+            print("Thanks for playing.")
+            valid = True
+            return
+        else:
+            print("Invalid Answer.")
+
+
+def askquestion(questionno, round):
+    while round < 7:
+        cell = worksheet["A{}".format(questionno + 1 + ((round - 2) * 13))]
+        level = cell.value
+        cell = worksheet["B{}".format(questionno + 1 + ((round - 2) * 13))]
+        question = cell.value
+        cell = worksheet["C{}".format(questionno + 1 + ((round - 2) * 13))]
+        options = cell.value
+        optionlist = options.split(',')
+        cell = worksheet["D{}".format(questionno + 1 + ((round - 2) * 13))]
+        c_answers = cell.value
+        c_answerslist = c_answers.split(',')
+        cell = worksheet["E{}".format(questionno + 1 + ((round - 2) * 13))]
+        w_answers = cell.value
+        w_answerslist = w_answers.split(',')
+        cell = worksheet["A{}".format(questionno + 1 + ((round - 2) * 13))]
+        amount = cell.value
+        print("---------------------------------")  
+        print("For ${}: {}".format(level, question))
+        for i in optionlist:
+            print(i)
         answer = input("Enter your answer:").upper().strip()
         if answer in c_answerslist:
             print("You got the correct answer. You now have ${}.".format(level))
-            return True
+            if amount == 1000000:
+                print("Yay! You won a million dollars!!")
+                winnings_dict[round - 1] = 1000000
+                menu(winnings_dict, round)
+                return
+            else: # ELif?
+                if questionno > 7:
+                    choice(amount, round)
+                    questionno += 1 
+                else:
+                    questionno += 1
         elif answer in w_answerslist:
             print("You got the wrong answer. You won nothing.")
             print("The correct answer was {}.".format(c_answerslist[1]))
-            return False
+            winnings_dict[round - 1] = 0
+            menu(winnings_dict, round)
+            return
         else:
             print("Not a valid answer.")
+            # I am calling funcction through play() instead of calling directly. I could call the function choice instaly after they get questions wrong.
+            # If questions wrong should call menu
+    print("No more rounds.")
 
-def choice(amount):
+
+def choice(amount, round):
     print("---------------------------------") 
     print("Do you want to leave with ${} or continue answering questions for more money?".format(amount))
     valid = False
@@ -50,25 +100,23 @@ Enter your choice:""")
         choice = choice.upper().strip()
         if choice == "1" or choice == "LEAVE":
             print("You won ${}.".format(amount))
-            return False
+            winnings_dict[round - 1] = amount 
+            menu(winnings_dict, round)
+            return
         elif choice == "2" or choice == "CONTINUE":
             return True
         else:
             print("Not a valid answer.")
 
-questionno = 1
-
-    
-continuing = True
-while continuing:
-    answer = askquestion(questionno)
-    if answer is True and questionno > 5:
-        cell = worksheet["A{}".format(questionno + 1)]
-        amount = cell.value
-        continuing = choice(amount)
-        questionno += 1 
-    elif answer is True:
-        questionno += 1
+def countwinnings(winnings_dict):
+    print("---------------------------------")
+    if winnings_dict:
+        total = sum(winnings_dict.values())
+        for i in winnings_dict:
+            print("Round {}: ${}".format(i, winnings_dict[i]))
+        print("Total: ${}".format(total))
     else:
-        print("Thanks for playing.")
-        break
+        print("No points scored yet!")
+    return winnings_dict
+
+menu(winnings_dict, round)
