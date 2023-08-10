@@ -13,15 +13,14 @@ winnings_dict = {
 }
 round = 1
 
-
 def menu(winnings_dict, round):
     """Print menu and calls chosen option."""
     print("""---------------------------------
-1. Play Game (Round {}/5)
+1. Play Next Round (Rounds played {}/5)
 2. Points
 3. Help
 Q. Points and Quit
-Try beat my score of $3,750,000.""".format(round - 1))
+Try beat my score of $3,750,000 total over all the 5 rounds.""".format(round - 1))
     # Loop until valid answer.
     valid = False
     while valid is False:
@@ -42,7 +41,7 @@ Try beat my score of $3,750,000.""".format(round - 1))
             print("""Welcome to the Who Wants to be a Millionaire game.
 How it works: There are 5 rounds, in each round you will be
 asked 12 questions in increasing difficulty. Each questions
-is for a certain amount of money from 100-1000000. If you get
+is for a certain amount of money from 100-1000000 dollars. If you get
 a questions wrong you leave with nothing. If you get it right
 you can go on to the next question. Starting from the 7th question
 you will be asked if you want to leave with the money of the
@@ -117,6 +116,7 @@ def askquestion(questionno, round):
     # If user tries to play when no rounds left.
     print("---------------------------------")
     print("No more rounds.")
+    round = 6
     menu(winnings_dict, round)
 
 
