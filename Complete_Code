@@ -1,6 +1,13 @@
 """Noah Le Ru, Who Wants to be a Millionaire Game."""
 import openpyxl as open
 import os
+# For running from os
+os.system("py -m pip install openpyxl")
+os.system("python3 -m pip install openpyxl")
+# For GitHub or Visual Studio
+os.system("pip install openpyxl")
+os.system("clear")
+os.system("cls")
 
 # Get excel sheet with Questions and Answers.
 current_directory = os.path.dirname(os.path.realpath(__file__))
