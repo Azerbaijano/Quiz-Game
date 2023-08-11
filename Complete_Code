@@ -55,7 +55,7 @@ questions wrong you win nothing!""")
             quit()
         else:
             # Loop Again
-            print("Invalid Answer.")
+            print("Invalid Input.")
 
 
 def askquestion(questionno, round):
@@ -143,7 +143,7 @@ Enter your choice:""")
             return True
         else:
             # Loop.
-            print("Not a valid answer.")
+            print("Not a valid choice.")
 
 
 def countwinnings(winnings_dict):
